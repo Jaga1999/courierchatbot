@@ -184,7 +184,10 @@ $(document).ready(function () {
               addBotItem(
                 "Logged Out Successfully! You cant access track my parcel until you Login again!"
               );
-            });
+              setTimeout(() => {
+                optionmessage();
+              }, 1000);
+            });            
             isLoggedIn = 1;
             trackParcel();
           } else {
@@ -314,121 +317,95 @@ $(document).ready(function () {
   }
   optionmessage();
 
-  textbox.keydown(function (e) {
+  function handleUserMessage(message) {
+    addUserItem(message);
+    switch (message.toLowerCase()) {
+      case "track my parcel":
+      case "1":
+        handleTrackParcel();
+        break;
+      case "get a quotation":
+      case "2":
+      case "get quotation":
+        handleGetQuote();
+        break;
+      case "learn more about our franchise opportunities":
+      case "3":
+      case "add franchise":
+        handleGetFranchise();
+        break;
+      case "help":
+      case "show options":
+        handleOptionMessage();
+        break;
+      case "hello":
+      case "hi":
+        addBotItem("Hello, How can I help You");
+        break;
+      case "what can you do":
+      case "show menu":
+      case "menu":
+        handleOptionMessage();
+        break;
+      default:
+        handleDefaultResponse(message);
+        break;
+    }
+  }
+  
+  function handleKeyDownEvent(e) {
     if (e.keyCode == 13) {
       e.preventDefault();
       var message = textbox.val().trim();
       if (message !== "") {
-        addUserItem(message);
-        if (
-          message.toLowerCase() === "track my parcel" ||
-          message.toLowerCase() === "1"
-        ) {
-          if (!isLoggedIn) {
-            login();
-          } else {
-            trackParcel();
-          }
-        } else if (
-          message.toLowerCase() === "get a quotation" ||
-          message.toLowerCase() === "2" ||
-          message.toLowerCase() === "get Quotation"
-        ) {
-          getQuote();
-        } else if (
-          message.toLowerCase() ===
-            "learn more about our franchise opportunities" ||
-          message.toLowerCase() === "3" ||
-          message.toLowerCase() === "add franchise"
-        ) {
-          getFranchise();
-        } else if (
-          message.toLowerCase() === "help" ||
-          message.toLowerCase() === "show options"
-        ) {
-          optionmessage();
-        } else if (
-          message.toLowerCase() === "hello" ||
-          message.toLowerCase() === "hi"
-        ) {
-          addBotItem("Hello, How can I help You");
-        } else if (
-          message.toLowerCase() === "what can you do" ||
-          message.toLowerCase() === "show menu" ||
-          message.toLowerCase() === "menu"
-        ) {
-          optionmessage();
-        } else {
-          $.get("getresponse.php", { q: message }, function (data) {
-            // Check if the response is not empty
-            if (data !== "") {
-              addBotItem(data);
-            } else {
-              // If the response is empty, display the default message
-              addBotItem(
-                "I'm sorry, I didn't understand. Please select one of the following options: track my parcel, get a quotation, or learn more about our franchise opportunities."
-              );
-            }
-          });
-        }
+        handleUserMessage(message);
         textbox.val("");
       }
     }
-  });
-  sendBtn.click(function () {
+  }
+  
+  function handleClickEvent() {
     var message = textbox.val().trim();
     if (message !== "") {
-      addUserItem(message);
-      if (
-        message.toLowerCase() === "track my parcel" ||
-        message.toLowerCase() === "1"
-      ) {
-        trackParcel();
-      } else if (
-        message.toLowerCase() === "get a quotation" ||
-        message.toLowerCase() === "2" ||
-        message.toLowerCase() === "get Quotation"
-      ) {
-        getQuote();
-      } else if (
-        message.toLowerCase() ===
-          "learn more about our franchise opportunities" ||
-        message.toLowerCase() === "3" ||
-        message.toLowerCase() === "add franchise"
-      ) {
-        getFranchise();
-      } else if (
-        message.toLowerCase() === "help" ||
-        message.toLowerCase() === "show options"
-      ) {
-        optionmessage();
-      } else if (
-        message.toLowerCase() === "hello" ||
-        message.toLowerCase() === "hi"
-      ) {
-        addBotItem("Hello, How can I help You");
-      } else if (
-        message.toLowerCase() === "what can you do" ||
-        message.toLowerCase() === "show menu" ||
-        message.toLowerCase() === "menu"
-      ) {
-        optionmessage();
-      } else {
-        $.get("getresponse.php", { q: message }, function (data) {
-          // Check if the response is not empty
-          if (data !== "") {
-            addBotItem(data);
-          } else {
-            // If the response is empty, display the default message
-            addBotItem(
-              "I'm sorry, I didn't understand. Please select one of the following options: track my parcel, get a quotation, or learn more about our franchise opportunities."
-            );
-          }
-        });
-      }
+      handleUserMessage(message);
       textbox.val("");
     }
-  });
+  }
+  
+  function handleTrackParcel() {
+    if (!isLoggedIn) {
+      login();
+    } else {
+      trackParcel();
+    }
+  }
+  
+  function handleGetQuote() {
+    getQuote();
+  }
+  
+  function handleGetFranchise() {
+    getFranchise();
+  }
+  
+  function handleOptionMessage() {
+    optionmessage();
+  }
+  
+  function handleDefaultResponse(message) {
+    $.get("getresponse.php", { q: message }, function (data) {
+      if (data !== "") {
+        addBotItem(data);
+      } else {
+        addBotItem(
+          "I'm sorry, I didn't understand. Please select one of the following options: track my parcel, get a quotation, or learn more about our franchise opportunities."
+        );
+      }
+    });
+  }
+  
+  textbox.keydown(handleKeyDownEvent);
+  sendBtn.click(handleClickEvent);  
 });
 
 function checkData() {
