@@ -36,6 +36,41 @@ if (isset($_POST["fname"]) && isset($_POST["femail"]) && isset($_POST["fmobile"]
 }
 
 
+if (isset($_FILES['file'])) {
+  $file = $_FILES['file'];
+  $fileName = $file['name'];
+  $fileTmpName = $file['tmp_name'];
+  $fileSize = $file['size'];
+  $fileError = $file['error'];
+  $fileType = $file['type'];
+
+  // Check if file has no errors
+  if ($fileError === 0) {
+    // Read file content
+    $fileContent = file_get_contents($fileTmpName);
+
+    // prepare query using prepared statement
+    $stmt = mysqli_prepare($conn, "INSERT INTO files (filename, filetype, filedata) VALUES (?, ?, ?)");
+    if (!$stmt) {
+      die("Error preparing query: " . mysqli_error($conn));
+    }
+    mysqli_stmt_bind_param($stmt, "sss", $fileName, $fileType, $fileContent);
+
+    // execute query
+    if (mysqli_stmt_execute($stmt)) {
+      // Successfully saved file
+      echo "success";
+    } else {
+      // Failed to save file
+      echo "fail";
+    }
+    mysqli_stmt_close($stmt);
+  } else {
+    // Failed to upload file
+    echo "fail";
+  }
+}
+
 
 // Check if username and password were provided
 if (isset($_POST["tracker_id"])) {

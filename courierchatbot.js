@@ -4,6 +4,21 @@ $(document).ready(function () {
   var textbox = $("#textbox");
   let isLoggedIn = false;
 
+   // Define HTML form for file upload
+   const fileUploadForm = `
+   <form id="file-upload-form" enctype="multipart/form-data">
+   <div class="alert alert-info file-upload-form">
+     Please select a file to upload:
+   </div>
+   <div class="form-group">
+     <label for="file" class="form-label">Choose file:</label>
+     <input type="file" class="form-control-file" id="file" name="file">
+   </div>
+   <button type="submit" class="btn btn-primary">Upload</button>
+   <button type="button" id="cancel-form" class="btn btn-secondary">Cancel</button>
+ </form> 
+ `;
+
   // Define HTML forms for the four options
   const loginForm = `
   <form id='login-form'>
@@ -20,7 +35,8 @@ $(document).ready(function () {
     </div>
     <button type='submit' class='btn btn-primary'>Login</button>
     <button type='button' id='cancel-btn' class='btn btn-secondary ml-3'>Cancel</button>
-  </form>`;
+  </form>
+  `;
 
   var trackForm = `
   <form id="track-form">
@@ -203,6 +219,55 @@ $(document).ready(function () {
     });
   }
 
+  function uploadFile() {
+    // Append the file upload form to the chat window
+    converse.append(fileUploadForm);
+    // Focus on the file input field
+    $("#file").focus();
+    // Scroll to the bottom of the chat window
+    converse.scrollTop(converse.prop("scrollHeight"));
+    // Handle file upload on form submission
+    $('#file-upload-form').submit(function(event) {
+      // Prevent default form submission
+      event.preventDefault();
+      // Create a new FormData object
+      var formData = new FormData(this);      
+      // Make the POST request using fetch()
+      fetch('getresponse.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.text();
+        } else {
+          throw new Error('Network response was not ok');
+        }
+      })
+      .then(data => {
+        // Handle response data here
+        if (data === 'success') {
+          addBotItem('File uploaded successfully');
+          converse.find("#file-upload-form").remove();
+        }
+      })
+      .catch(error => {
+        // Handle error here
+        addBotItem("Something went wrong! try again!");
+        console.error('Error:', error);
+        converse.find("#file-upload-form").remove();
+      });
+    });
+    
+    // Handle cancel button click
+    $("#cancel-form").click(function (e) {
+      e.preventDefault();
+      converse.find("#file-upload-form").remove();
+    });
+  }
+  
+  
+
   // Define function to handle "quotation" option
   function getQuote() {
     converse.append(quoteForm);
@@ -334,6 +399,9 @@ $(document).ready(function () {
       case "add franchise":
         handleGetFranchise();
         break;
+      case "4":
+        uploadFile();
+      break;
       case "help":
       case "show options":
         handleOptionMessage();
