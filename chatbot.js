@@ -192,13 +192,14 @@ $(document).ready(function () {
               "<button id='logout-btn' class='btn btn-secondary' style='position: absolute; top: 15px; right: 60px;'>LogOut</button>";
             converse.append(LogoutButton);
             $("#logout-btn").click(() => {
+              converse.empty();
               converse.find("#logout-btn").remove();
               if (converse.find("#track-form")) {
                 converse.find("#track-form").remove();
               }
               isLoggedIn = 0;
               addBotItem(
-                "Logged Out Successfully! You cant access track my parcel until you Login again!"
+                "Logged Out Successfully!"
               );
               setTimeout(() => {
                 optionmessage();
@@ -415,6 +416,12 @@ $(document).ready(function () {
       case "hello":
       case "hi":
         addBotItem("Hello, How can I help You");
+        break;
+      case "clear":
+        converse.empty();
+        setTimeout(() => {
+          optionmessage();
+        }, 500);
         break;
       default:
         handleDefaultResponse(message);

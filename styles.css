@@ -7,6 +7,11 @@
   -ms-overflow-style: none;
 }
 
+#logo {
+  width: 50px;
+  height: 50px;
+}
+
 #chat-button {
   position: fixed;
   bottom: 20px;
@@ -27,10 +32,12 @@
   background-color: #337ab7;
 }
 
+
 #chat-box {
   position: fixed;
   bottom: 90px;
   right: 30px;
+  height: 80%;
   width: 350px;
   z-index: 9998;
   display: none;
@@ -44,6 +51,10 @@
 }
 
 #chat-head {
+  display: flex;
+  height: 70px;
+  align-items: center;
+  justify-content: space-between;
   background-color: #3f8fd2;
   color: #fff;
   padding: 20px;
@@ -64,13 +75,15 @@
 
 #converse {
   padding: 20px;
-  height: 250px;
+  height: 300px;
   overflow-y: auto;
+
 }
 
 #controls {
   padding: 20px;
   display: flex;
+  
 }
 
 .controls-elements {

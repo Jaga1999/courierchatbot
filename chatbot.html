@@ -13,7 +13,10 @@
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
     />
-    <link rel="stylesheet" href="chatbot.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+     
+    </style>
   </head>
   <body>
     <div class="container">
@@ -22,7 +25,11 @@
       </div>
       <div id="chat-box">
         <div id="chat-head">
-          Chat-Bot<i id="cancel" class="fa fa-times"></i>
+          <div id="logodiv">
+            <img id="logo" src="logo.png" alt="logo" class="rounded-circle shadow-4-strong img-thumbnail">
+            <span> Chat-Bot</span>
+          </div>
+         <i id="cancel" class="fa fa-times"></i>
         </div>
         <div id="converse"></div>
         <div id="controls">
@@ -38,6 +45,6 @@
       </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="courierchatbot.js"></script>
+    <script src="chatbot.js"></script>
   </body>
 </html>
