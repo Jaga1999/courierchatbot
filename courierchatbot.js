@@ -386,17 +386,19 @@ $(document).ready(function () {
     addUserItem(message);
     switch (message.toLowerCase()) {
       case "track my parcel":
+      case "track parcel":
       case "1":
         handleTrackParcel();
         break;
       case "get a quotation":
       case "2":
-      case "get quotation":
+      case "quotation":
         handleGetQuote();
         break;
       case "learn more about our franchise opportunities":
       case "3":
       case "add franchise":
+      case "franchise":
         handleGetFranchise();
         break;
       case "4":
@@ -404,16 +406,15 @@ $(document).ready(function () {
       break;
       case "help":
       case "show options":
+      case "options":
+      case "what can you do":
+      case "show menu":
+      case "menu":
         handleOptionMessage();
         break;
       case "hello":
       case "hi":
         addBotItem("Hello, How can I help You");
-        break;
-      case "what can you do":
-      case "show menu":
-      case "menu":
-        handleOptionMessage();
         break;
       default:
         handleDefaultResponse(message);
