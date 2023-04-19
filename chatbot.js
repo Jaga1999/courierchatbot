@@ -192,7 +192,6 @@ $(document).ready(function () {
               "<button id='logout-btn' class='btn btn-secondary' style='position: absolute; top: 15px; right: 60px;'>LogOut</button>";
             converse.append(LogoutButton);
             $("#logout-btn").click(() => {
-              converse.empty();
               converse.find("#logout-btn").remove();
               if (converse.find("#track-form")) {
                 converse.find("#track-form").remove();
@@ -202,6 +201,7 @@ $(document).ready(function () {
                 "Logged Out Successfully!"
               );
               setTimeout(() => {
+              converse.empty();
                 initial();
                 optionmessage();
               }, 1000);
