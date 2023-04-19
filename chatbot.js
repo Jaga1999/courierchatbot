@@ -3,9 +3,10 @@ $(document).ready(function () {
   var converse = $("#converse");
   var textbox = $("#textbox");
   let isLoggedIn = false;
+  let globalUsername = "";
 
-   // Define HTML form for file upload
-   const fileUploadForm = `
+  // Define HTML form for file upload
+  const fileUploadForm = `
    <form id="file-upload-form" enctype="multipart/form-data">
    <div class="alert alert-info file-upload-form">
      Please select a file to upload:
@@ -35,8 +36,39 @@ $(document).ready(function () {
     </div>
     <button type='submit' class='btn btn-primary'>Login</button>
     <button type='button' id='cancel-btn' class='btn btn-secondary ml-3'>Cancel</button>
+    <p class="mt-3">Don't have an account yet? <a href="#" id="register">Register now</a>.</p>
   </form>
-  `;
+`;
+
+  const LogoutButton = `<button id='logout-btn' class='btn btn-secondary' style='position: absolute; top: 15px; right: 60px;'>LogOut</button>`;
+
+  const registerForm = `
+  <form id="register-form">
+    <div class="alert alert-info track-form">
+        Please Enter details for register:
+    </div>
+    <div class="form-group">
+      <label for="username">Username:</label>
+      <input type="text" class="form-control" id="username" name="username" required>
+    </div>
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" class="form-control" id="password" name="password" required>
+    </div>
+    <div class="form-group">
+      <label for="confirm-password">Confirm Password:</label>
+      <input type="password" class="form-control" id="confirm-password" name="confirm-password" required>
+			<span id='message' class='alert-danger'></span>
+    </div>
+    <button type="submit" class="btn btn-primary" id="submitBtn">Register</button>
+    <button type="button" class="btn btn-secondary" id='cancel-btn'>Cancel</button>
+    <p class="mt-3">Already registered? <a href="#" id="back-login">Log-In</a>.</p>
+  </form>
+`;
 
   var trackForm = `
   <form id="track-form">
@@ -139,8 +171,14 @@ $(document).ready(function () {
   function trackParcel() {
     converse.append(trackForm);
     $("#tracking-number").focus();
-    converse.scrollTop(converse.prop("scrollHeight"));
+    // converse.scrollTop(converse.prop("scrollHeight"));
     var trackingNumber; // declare trackingNumber variable outside the submit function
+    var user;
+    if (globalUsername === "") {
+      user = "guest user";
+    } else {
+      user = globalUsername;
+    }
     $("#track-form").submit(function (e) {
       e.preventDefault();
       trackingNumber = $(this).find('input[name="tracking-number"]').val();
@@ -148,7 +186,7 @@ $(document).ready(function () {
         // Make AJAX request to get parcel tracking data
         $.post(
           "getresponse.php",
-          { tracker_id: trackingNumber },
+          { tracker_id: trackingNumber, trackuser: user },
           function (data) {
             var data = JSON.parse(data);
             addBotItem(
@@ -177,7 +215,7 @@ $(document).ready(function () {
   function login() {
     converse.append(loginForm);
     $("#c_username").focus();
-    converse.scrollTop(converse.prop("scrollHeight"));
+    // converse.scrollTop(converse.prop("scrollHeight"));
     $("#login-form").submit(function (e) {
       e.preventDefault();
       username = $(this).find('input[name="c_username"]').val();
@@ -188,8 +226,6 @@ $(document).ready(function () {
         function (data) {
           if (data === "success") {
             converse.find("#login-form").remove();
-            const LogoutButton =
-              "<button id='logout-btn' class='btn btn-secondary' style='position: absolute; top: 15px; right: 60px;'>LogOut</button>";
             converse.append(LogoutButton);
             $("#logout-btn").click(() => {
               converse.find("#logout-btn").remove();
@@ -197,17 +233,27 @@ $(document).ready(function () {
                 converse.find("#track-form").remove();
               }
               isLoggedIn = 0;
-              addBotItem(
-                "Logged Out Successfully!"
-              );
+              globalUsername = "";
+              addBotItem("Logged Out Successfully!");
               setTimeout(() => {
-              converse.empty();
+                converse.empty();
                 initial();
                 optionmessage();
               }, 1000);
-            });            
+            });
             isLoggedIn = 1;
+            globalUsername = username;
             trackParcel();
+          } else if (data === "password incorrect") {
+            converse.find("#login-form").remove();
+            converse.append(
+              "<div class='alert alert-info'>password Incorrect! Try again</div>."
+            );
+          } else if (data === "username not found") {
+            converse.find("#login-form").remove();
+            addBotItem(
+              "<div class='alert alert-info'>Username Not Found! Try again</div>."
+            );
           } else {
             converse.find("#login-form").remove();
             addBotItem("Login failed. Please try again.");
@@ -219,62 +265,126 @@ $(document).ready(function () {
       e.preventDefault();
       converse.find("#login-form").remove();
     });
+    $("#register").click(function (e) {
+      e.preventDefault();
+      converse.find("#login-form").remove();
+      handleRegisterClick();
+    });
+  }
+
+  function handleRegisterClick() {
+    converse.find("#login-form").remove();
+    converse.append(registerForm);
+    $("#username").focus();
+    // converse.scrollTop(converse.prop("scrollHeight"));
+    var password = converse.find("#password");
+    var retypePassword = converse.find("#confirm-password");
+    var message = converse.find("#message");
+    var submitBtn = converse.find("#submitBtn");
+
+    function validatePassword() {
+      if (password.val() != retypePassword.val()) {
+        message.html("Passwords do not match!");
+        submitBtn.prop("disabled", true);
+      } else {
+        message.html("");
+        submitBtn.prop("disabled", false);
+      }
+    }
+    retypePassword.on("blur", validatePassword);
+
+    $("#register-form").submit(function (e) {
+      e.preventDefault();
+      user = $(this).find('input[name="username"]').val();
+      pass = $(this).find('input[name="password"]').val();
+      retypepassS = $(this).find('input[name="confirm-password"]').val();
+      email = $(this).find('input[name="email"]').val();
+      $.post(
+        "getresponse.php",
+        { newuser: user, pass: pass, email: email },
+        function (data) {
+          if (data === "success") {
+            converse.find("#register-form").remove();
+            converse.append(
+              "<div class='alert alert-info'>User Registered Successfully!</div>"
+            );
+          } else if (data === "username_taken") {
+            converse.find("#register-form").remove();
+            converse.append(
+              "<div class='alert alert-danger'>Username already Exist! Try again with another Username.</div>"
+            );
+          } else if (data === "email_taken") {
+            converse.find("#register-form").remove();
+            converse.append(
+              "<div class='alert alert-danger'>Email already Exist! Try again with another Email.</div>"
+            );
+          } else {
+            converse.find("#register-form").remove();
+            converse.append("Register failed. Please try again.");
+          }
+        }
+      );
+    });
+
+    $("#cancel-btn").click(function (e) {
+      e.preventDefault();
+      converse.find("#register-form").remove();
+    });
+    $("#back-login").click(function (e) {
+      e.preventDefault();
+      converse.find("#register-form").remove();
+      login();
+    });
   }
 
   function uploadFile() {
-    // Append the file upload form to the chat window
     converse.append(fileUploadForm);
-    // Focus on the file input field
     $("#file").focus();
-    // Scroll to the bottom of the chat window
-    converse.scrollTop(converse.prop("scrollHeight"));
-    // Handle file upload on form submission
-    $('#file-upload-form').submit(function(event) {
-      // Prevent default form submission
+    // converse.scrollTop(converse.prop("scrollHeight"));
+    if (globalUsername === "") {
+      user = "guest user";
+    } else {
+      user = globalUsername;
+    }
+    $("#file-upload-form").submit(function (event) {
       event.preventDefault();
-      // Create a new FormData object
-      var formData = new FormData(this);      
-      // Make the POST request using fetch()
-      fetch('getresponse.php', {
-        method: 'POST',
-        body: formData
+      var formData = new FormData(this);
+      formData.append("user", user);
+      fetch("getresponse.php", {
+        method: "POST",
+        body: formData,
       })
-      .then(response => {
-        if (response.ok) {
-          return response.text();
-        } else {
-          throw new Error('Network response was not ok');
-        }
-      })
-      .then(data => {
-        // Handle response data here
-        if (data === 'success') {
-          addBotItem('File uploaded successfully');
+        .then((response) => {
+          if (response.ok) {
+            return response.text();
+          } else {
+            throw new Error("Network response was not ok");
+          }
+        })
+        .then((data) => {
+          if (data === "success") {
+            addBotItem("File uploaded successfully");
+            converse.find("#file-upload-form").remove();
+          }
+        })
+        .catch((error) => {
+          addBotItem("Something went wrong! try again!");
+          console.error("Error:", error);
           converse.find("#file-upload-form").remove();
-        }
-      })
-      .catch(error => {
-        // Handle error here
-        addBotItem("Something went wrong! try again!");
-        console.error('Error:', error);
-        converse.find("#file-upload-form").remove();
-      });
+        });
     });
-    
-    // Handle cancel button click
+
     $("#cancel-form").click(function (e) {
       e.preventDefault();
       converse.find("#file-upload-form").remove();
     });
   }
-  
-  
 
   // Define function to handle "quotation" option
   function getQuote() {
     converse.append(quoteForm);
     $("#from-location").focus();
-    converse.scrollTop(converse.prop("scrollHeight"));
+    // converse.scrollTop(converse.prop("scrollHeight"));
 
     $("#quote-form").submit(function (e) {
       e.preventDefault();
@@ -282,16 +392,34 @@ $(document).ready(function () {
       var toLocation = $(this).find('input[name="to-location"]').val();
       var weight = $(this).find('input[name="weight"]').val();
       var quote = calculateQuote(fromLocation, toLocation, weight);
+      var user;
+      if (globalUsername === "") {
+        user = "guest user";
+      } else {
+        user = globalUsername;
+      }
       if (quote !== null) {
-        addBotItem(
-          "The estimated shipping cost from: " +
-            fromLocation.toUpperCase() +
-            " To: " +
-            toLocation.toUpperCase() +
-            " of Weight " +
-            weight +
-            " KG is $" +
-            quote
+        $.post(
+          "getresponse.php",
+          {
+            quotationuser: user,
+          },
+          function (data) {
+            if (data === "success") {
+              addBotItem(
+                "The estimated shipping cost from: " +
+                  fromLocation.toUpperCase() +
+                  " To: " +
+                  toLocation.toUpperCase() +
+                  " of Weight " +
+                  weight +
+                  " KG is $" +
+                  quote
+              );
+            } else {
+              addBotItem("Something went wrong in quotation.");
+            }
+          }
         );
       } else {
         addBotItem("Something went wrong. Please try again.");
@@ -323,7 +451,7 @@ $(document).ready(function () {
   function getFranchise() {
     converse.append(franchiseForm);
     $("#name").focus();
-    converse.scrollTop(converse.prop("scrollHeight"));
+    // converse.scrollTop(converse.prop("scrollHeight"));
 
     $("#franchise-form").submit(function (e) {
       e.preventDefault();
@@ -333,55 +461,53 @@ $(document).ready(function () {
       var city = $(this).find('select[name="city"]').val();
       var address = $(this).find('input[name="address"]').val();
       var pincode = $(this).find('input[name="pincode"]').val();
-      if (
-        name !== "" &&
-        email !== "" &&
-        phone !== "" &&
-        city !== "" &&
-        address !== "" &&
-        pincode !== ""
-      ) {
-        // Make AJAX request to submit franchise form
-        $.post(
-          "getresponse.php",
-          {
-            fname: name,
-            femail: email,
-            fmobile: phone,
-            fcity: city,
-            faddress: address,
-            fpincode: pincode,
-          },
-          function (data) {
-            if (data === "success") {
-              addBotItem(
-                "Thank you for your interest in our franchise opportunities! We will contact you soon."
-              );
-            } else {
-              addBotItem("Something went wrong in franchise.");
-            }
-          }
-        );
-        converse.find("#franchise-form").remove();
+      var user;
+      if (globalUsername === "") {
+        user = "guest user";
       } else {
-        addBotItem("Something went wrong in franchise.");
+        user = globalUsername;
       }
+      // Make AJAX request to submit franchise form
+      $.post(
+        "getresponse.php",
+        {
+          fname: name,
+          femail: email,
+          fmobile: phone,
+          fcity: city,
+          faddress: address,
+          fpincode: pincode,
+          user: user,
+        },
+        function (data) {
+          if (data === "success") {
+            addBotItem(
+              "Thank you for your interest in our franchise opportunities! We will contact you soon."
+            );
+          } else {
+            addBotItem("Something went wrong in franchise.");
+          }
+        }
+      );
+      converse.find("#franchise-form").remove();
     });
     $("#cancel-form").click(function (e) {
       e.preventDefault();
       converse.find("#franchise-form").remove();
     });
   }
-  function initial(){
-    converse.append("<div class='alert alert-info'>Welcome to shipping company!</div>");
-  };
+  function initial() {
+    converse.append(
+      "<div class='alert alert-info'>Welcome to shipping company!</div>"
+    );
+  }
   function optionmessage() {
     // Handle initial welcome message and user input
     addBotItem(
       "Please select one of the following options: <br>1. Track My Parcel <br>2. Get a Quotation <br>3. Add Franchise Opportunities."
     );
   }
- initial();
+  initial();
   optionmessage();
 
   function handleUserMessage(message) {
@@ -404,8 +530,8 @@ $(document).ready(function () {
         handleGetFranchise();
         break;
       case "4":
-        uploadFile();
-      break;
+        handleuploadFile();
+        break;
       case "help":
       case "show options":
       case "options":
@@ -429,7 +555,7 @@ $(document).ready(function () {
         break;
     }
   }
-  
+
   function handleKeyDownEvent(e) {
     if (e.keyCode == 13) {
       e.preventDefault();
@@ -440,7 +566,7 @@ $(document).ready(function () {
       }
     }
   }
-  
+
   function handleClickEvent() {
     var message = textbox.val().trim();
     if (message !== "") {
@@ -448,7 +574,7 @@ $(document).ready(function () {
       textbox.val("");
     }
   }
-  
+
   function handleTrackParcel() {
     if (!isLoggedIn) {
       login();
@@ -456,19 +582,27 @@ $(document).ready(function () {
       trackParcel();
     }
   }
-  
+
   function handleGetQuote() {
     getQuote();
   }
-  
+
   function handleGetFranchise() {
     getFranchise();
   }
-  
+
+  function handleuploadFile(){
+    if (!isLoggedIn) {
+      login();
+    } else {
+      uploadFile();
+    }
+  }
+
   function handleOptionMessage() {
     optionmessage();
   }
-  
+
   function handleDefaultResponse(message) {
     $.get("getresponse.php", { q: message }, function (data) {
       if (data !== "") {
@@ -480,9 +614,9 @@ $(document).ready(function () {
       }
     });
   }
-  
+
   textbox.keydown(handleKeyDownEvent);
-  sendBtn.click(handleClickEvent);  
+  sendBtn.click(handleClickEvent);
 });
 
 function checkData() {

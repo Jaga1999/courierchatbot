@@ -37,7 +37,6 @@
   position: fixed;
   bottom: 90px;
   right: 30px;
-  height: 80%;
   width: 350px;
   z-index: 9998;
   display: none;
@@ -75,15 +74,14 @@
 
 #converse {
   padding: 20px;
-  height: 300px;
+  height: 265px;
   overflow-y: auto;
-
 }
 
 #controls {
   padding: 20px;
+  padding-top: 10px;
   display: flex;
-  
 }
 
 .controls-elements {
@@ -117,4 +115,33 @@
 
 #send-icon {
   margin-right: 5px;
+}
+
+@media only screen and (max-width: 768px) {
+  #converse{
+    font-size: 13px;
+    height: 200px;
+  }
+  .controls-elements {
+    font-size: 12px;
+  }
+  #chat-box{
+    width: 50%;
+  }
+}
+
+@media only screen and (max-width: 576px) {
+  #send{
+    max-width: 65px
+  }
+  #converse{
+    font-size: 11px;
+    height: 200px;
+  }
+  .controls-elements {
+    font-size: 11px;
+  }
+  #chat-box{
+    width: 50%;
+  }
 }
