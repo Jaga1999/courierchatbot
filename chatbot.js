@@ -202,6 +202,7 @@ $(document).ready(function () {
                 "Logged Out Successfully!"
               );
               setTimeout(() => {
+                initial();
                 optionmessage();
               }, 1000);
             });            
@@ -371,16 +372,16 @@ $(document).ready(function () {
       converse.find("#franchise-form").remove();
     });
   }
-  addBotItem(
-    "Welcome to our shipping company! <br> How may I assist you today?"
-  );
+  function initial(){
+    converse.append("<div class='alert alert-info'>Welcome to shipping company!</div>");
+  };
   function optionmessage() {
     // Handle initial welcome message and user input
-
     addBotItem(
       "Please select one of the following options: <br>1. Track My Parcel <br>2. Get a Quotation <br>3. Add Franchise Opportunities."
     );
   }
+ initial();
   optionmessage();
 
   function handleUserMessage(message) {
