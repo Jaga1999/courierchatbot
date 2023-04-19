@@ -171,7 +171,7 @@ $(document).ready(function () {
   function trackParcel() {
     converse.append(trackForm);
     $("#tracking-number").focus();
-    // converse.scrollTop(converse.prop("scrollHeight"));
+    converse.scrollTop(converse.prop("scrollHeight"));
     var trackingNumber; // declare trackingNumber variable outside the submit function
     var user;
     if (globalUsername === "") {
@@ -215,7 +215,7 @@ $(document).ready(function () {
   function login() {
     converse.append(loginForm);
     $("#c_username").focus();
-    // converse.scrollTop(converse.prop("scrollHeight"));
+    converse.scrollTop(converse.prop("scrollHeight"));
     $("#login-form").submit(function (e) {
       e.preventDefault();
       username = $(this).find('input[name="c_username"]').val();
@@ -276,7 +276,7 @@ $(document).ready(function () {
     converse.find("#login-form").remove();
     converse.append(registerForm);
     $("#username").focus();
-    // converse.scrollTop(converse.prop("scrollHeight"));
+    converse.scrollTop(converse.prop("scrollHeight"));
     var password = converse.find("#password");
     var retypePassword = converse.find("#confirm-password");
     var message = converse.find("#message");
@@ -340,7 +340,7 @@ $(document).ready(function () {
   function uploadFile() {
     converse.append(fileUploadForm);
     $("#file").focus();
-    // converse.scrollTop(converse.prop("scrollHeight"));
+    converse.scrollTop(converse.prop("scrollHeight"));
     if (globalUsername === "") {
       user = "guest user";
     } else {
@@ -384,7 +384,7 @@ $(document).ready(function () {
   function getQuote() {
     converse.append(quoteForm);
     $("#from-location").focus();
-    // converse.scrollTop(converse.prop("scrollHeight"));
+    converse.scrollTop(converse.prop("scrollHeight"));
 
     $("#quote-form").submit(function (e) {
       e.preventDefault();
@@ -451,7 +451,7 @@ $(document).ready(function () {
   function getFranchise() {
     converse.append(franchiseForm);
     $("#name").focus();
-    // converse.scrollTop(converse.prop("scrollHeight"));
+    converse.scrollTop(converse.prop("scrollHeight"));
 
     $("#franchise-form").submit(function (e) {
       e.preventDefault();
